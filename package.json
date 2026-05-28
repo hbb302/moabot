@@ -1,0 +1,13 @@
+{
+  "name": "moabot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "「모두의 아이디어」 아이디어 고도화 멘토링 안내 챗봇 (기술 분야)",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.1"
+  }
+}
