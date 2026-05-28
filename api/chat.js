@@ -111,6 +111,20 @@ ${guidebookText}
 [가이드북 본문 끝]`;
 
 export default async function handler(req, res) {
+  // 임시 디버그 엔드포인트 (GET ?debug=1)
+  if (req.method === 'GET' && req.query && req.query.debug === '1') {
+    return res.status(200).json({
+      guidebook_loaded: guidebookText.length > 0,
+      guidebook_length: guidebookText.length,
+      guidebook_first_100: guidebookText.slice(0, 100),
+      api_key_set: !!process.env.ANTHROPIC_API_KEY,
+      api_key_prefix: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.slice(0, 15) : null,
+      dirname: __dirname,
+      cwd: process.cwd(),
+      node_version: process.version,
+    });
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
