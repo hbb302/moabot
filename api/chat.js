@@ -172,6 +172,8 @@ export default async function handler(req, res) {
 
     // 2차: 자체 점검
     let finalReply = firstReply;
+    let verifierText = null;
+    let verifierVerified = null;
     try {
       const verifierResponse = await anthropic.messages.create({
         model: 'claude-haiku-4-5',
@@ -192,11 +194,12 @@ export default async function handler(req, res) {
         ]
       });
 
-      const verifierText = verifierResponse.content[0].text.trim();
+      verifierText = verifierResponse.content[0].text.trim();
       const jsonMatch = verifierText.match(/\{[\s\S]*\}/);
 
       if (jsonMatch) {
         const verification = JSON.parse(jsonMatch[0]);
+        verifierVerified = verification.verified;
         if (verification.verified === false && verification.corrected_response) {
           finalReply = verification.corrected_response;
         }
@@ -210,11 +213,20 @@ export default async function handler(req, res) {
     }
 
     // 최종 안전망: 출처 표시도 없고 fallback도 아니면 fallback으로 대체
+    let safetyNetApplied = false;
     if (!finalReply.includes('📖') && !finalReply.includes('1811-6095')) {
       finalReply = FALLBACK_MSG;
+      safetyNetApplied = true;
     }
 
-    return res.status(200).json({ reply: finalReply });
+    return res.status(200).json({
+      reply: finalReply,
+      _debug_first_reply: firstReply.slice(0, 600),
+      _debug_first_reply_full_length: firstReply.length,
+      _debug_verifier_text: verifierText ? verifierText.slice(0, 600) : null,
+      _debug_verifier_verified: verifierVerified,
+      _debug_safety_net: safetyNetApplied,
+    });
   } catch (err) {
     console.error('[chat.js] Handler error:', err.message);
     return res.status(500).json({
