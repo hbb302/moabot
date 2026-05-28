@@ -217,6 +217,12 @@ export default async function handler(req, res) {
     return res.status(200).json({ reply: finalReply });
   } catch (err) {
     console.error('[chat.js] Handler error:', err.message);
-    return res.status(500).json({ reply: FALLBACK_MSG });
+    return res.status(500).json({
+      reply: FALLBACK_MSG,
+      _debug_error: err.message,
+      _debug_stack: err.stack ? err.stack.split('\n').slice(0, 5).join(' | ') : null,
+      _debug_status: err.status || null,
+      _debug_type: err.constructor.name,
+    });
   }
 }
