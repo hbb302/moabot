@@ -111,20 +111,6 @@ ${guidebookText}
 [가이드북 본문 끝]`;
 
 export default async function handler(req, res) {
-  // 임시 디버그 엔드포인트 (GET ?debug=1)
-  if (req.method === 'GET' && req.query && req.query.debug === '1') {
-    return res.status(200).json({
-      guidebook_loaded: guidebookText.length > 0,
-      guidebook_length: guidebookText.length,
-      guidebook_first_100: guidebookText.slice(0, 100),
-      api_key_set: !!process.env.ANTHROPIC_API_KEY,
-      api_key_prefix: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.slice(0, 15) : null,
-      dirname: __dirname,
-      cwd: process.cwd(),
-      node_version: process.version,
-    });
-  }
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -172,8 +158,6 @@ export default async function handler(req, res) {
 
     // 2차: 자체 점검
     let finalReply = firstReply;
-    let verifierText = null;
-    let verifierVerified = null;
     try {
       const verifierResponse = await anthropic.messages.create({
         model: 'claude-haiku-4-5',
@@ -194,12 +178,11 @@ export default async function handler(req, res) {
         ]
       });
 
-      verifierText = verifierResponse.content[0].text.trim();
+      const verifierText = verifierResponse.content[0].text.trim();
       const jsonMatch = verifierText.match(/\{[\s\S]*\}/);
 
       if (jsonMatch) {
         const verification = JSON.parse(jsonMatch[0]);
-        verifierVerified = verification.verified;
         if (verification.verified === false && verification.corrected_response) {
           finalReply = verification.corrected_response;
         }
@@ -213,28 +196,13 @@ export default async function handler(req, res) {
     }
 
     // 최종 안전망: 출처 표시도 없고 fallback도 아니면 fallback으로 대체
-    let safetyNetApplied = false;
     if (!finalReply.includes('📖') && !finalReply.includes('1811-6095')) {
       finalReply = FALLBACK_MSG;
-      safetyNetApplied = true;
     }
 
-    return res.status(200).json({
-      reply: finalReply,
-      _debug_first_reply: firstReply.slice(0, 600),
-      _debug_first_reply_full_length: firstReply.length,
-      _debug_verifier_text: verifierText ? verifierText.slice(0, 600) : null,
-      _debug_verifier_verified: verifierVerified,
-      _debug_safety_net: safetyNetApplied,
-    });
+    return res.status(200).json({ reply: finalReply });
   } catch (err) {
     console.error('[chat.js] Handler error:', err.message);
-    return res.status(500).json({
-      reply: FALLBACK_MSG,
-      _debug_error: err.message,
-      _debug_stack: err.stack ? err.stack.split('\n').slice(0, 5).join(' | ') : null,
-      _debug_status: err.status || null,
-      _debug_type: err.constructor.name,
-    });
+    return res.status(500).json({ reply: FALLBACK_MSG });
   }
 }
