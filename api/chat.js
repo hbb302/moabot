@@ -1,16 +1,32 @@
 import Anthropic from '@anthropic-ai/sdk';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 // 가이드북 본문 1회 로드 (Vercel cold start 시점에 메모리 캐싱)
+// 함수 파일(api/chat.js)과 같은 폴더에 guidebook_text.txt 배치
 let guidebookText = '';
-try {
-  const guidebookPath = path.join(process.cwd(), 'guidebook_text.txt');
-  guidebookText = fs.readFileSync(guidebookPath, 'utf-8');
-} catch (e) {
-  console.error('[chat.js] Failed to load guidebook_text.txt:', e.message);
+const candidatePaths = [
+  path.join(__dirname, 'guidebook_text.txt'),
+  path.join(process.cwd(), 'api', 'guidebook_text.txt'),
+  path.join(process.cwd(), 'guidebook_text.txt'),
+];
+for (const p of candidatePaths) {
+  try {
+    guidebookText = fs.readFileSync(p, 'utf-8');
+    console.log('[chat.js] guidebook loaded from:', p, 'length:', guidebookText.length);
+    break;
+  } catch (e) {
+    // 다음 경로 시도
+  }
+}
+if (!guidebookText) {
+  console.error('[chat.js] FATAL: guidebook_text.txt not found in any candidate path');
 }
 
 const FALLBACK_MSG = '가이드북에 명시되지 않은 사항입니다. 자세한 내용은 「모두의 아이디어」 대국민 상담센터(1811-6095, 평일 09:00~18:00)로 문의해주십시오.';

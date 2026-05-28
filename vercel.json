@@ -1,8 +1,7 @@
 {
   "functions": {
     "api/chat.js": {
-      "maxDuration": 30,
-      "includeFiles": "guidebook_text.txt"
+      "maxDuration": 30
     }
   },
   "headers": [
