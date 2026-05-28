@@ -154,7 +154,7 @@ export default async function handler(req, res) {
 
     // 1차: 메인 응답 생성 (Prompt Caching 적용)
     const mainResponse = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5',
+      model: 'claude-haiku-4-5',
       max_tokens: 1024,
       temperature: 0,
       system: [
@@ -174,7 +174,7 @@ export default async function handler(req, res) {
     let finalReply = firstReply;
     try {
       const verifierResponse = await anthropic.messages.create({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-haiku-4-5',
         max_tokens: 1024,
         temperature: 0,
         system: [
