@@ -1,9 +1,11 @@
 node_modules/
 .vercel/
+.vercel
 .env
 .env.local
 .env.*.local
 .DS_Store
 *.log
 
-.vercel
+# 운영에 불필요한 내부 설계 문서 (로컬에만 보관, 공개 X)
+docs/

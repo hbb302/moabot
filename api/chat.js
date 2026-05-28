@@ -21,8 +21,6 @@ let guidebookText = '';
 const guidebookCandidates = [
   path.join(__dirname, 'guidebook.md'),
   path.join(process.cwd(), 'api', 'guidebook.md'),
-  path.join(__dirname, 'guidebook_text.txt'),
-  path.join(process.cwd(), 'api', 'guidebook_text.txt'),
 ];
 for (const p of guidebookCandidates) {
   try {
@@ -40,7 +38,9 @@ if (!guidebookText) {
 // ────────────────────────────────────────────────────────
 let presetMap = new Map();
 const presetCandidates = [
-  path.join(__dirname, '..', 'preset_answers.json'),
+  path.join(__dirname, 'preset_answers.json'),        // api/preset_answers.json (배포 시 함수 패키지 포함)
+  path.join(process.cwd(), 'api', 'preset_answers.json'),
+  path.join(__dirname, '..', 'preset_answers.json'),  // 로컬 dev fallback
   path.join(process.cwd(), 'preset_answers.json'),
 ];
 for (const p of presetCandidates) {
