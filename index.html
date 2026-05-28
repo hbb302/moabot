@@ -7,6 +7,7 @@
 <title>모아봇 | 「모두의 아이디어」 아이디어 고도화 프로그램 안내</title>
 <meta name="description" content="「모두의 아이디어」 아이디어 고도화 프로그램(기술 분야) 안내 챗봇입니다.">
 
+<link rel="preload" as="image" href="logo.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
 <style>
@@ -27,6 +28,7 @@
   --gradient-hero: linear-gradient(135deg, #F4A48C 0%, #E87B9D 35%, #9B7CB9 70%, #5E3F87 100%);
   --shadow-soft: 0 2px 12px rgba(94, 63, 135, 0.08);
   --shadow-lift: 0 4px 20px rgba(94, 63, 135, 0.12);
+  --shadow-header: 0 4px 16px rgba(94, 63, 135, 0.22);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,6 +42,10 @@ html, body {
   overscroll-behavior: none;
 }
 
+button {
+  font-family: inherit;
+}
+
 .app {
   display: flex;
   flex-direction: column;
@@ -49,36 +55,105 @@ html, body {
   background: var(--color-bg-chat);
 }
 
+/* ────────────────────────────────
+   헤더 (그라데이션 + 로고 카드 + 새 대화)
+   ──────────────────────────────── */
 .header {
   background: var(--gradient-hero);
-  color: white;
-  padding: 16px 20px;
+  padding: 14px 18px;
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-header);
   flex-shrink: 0;
+  position: relative;
+  z-index: 10;
 }
-.header-logo {
-  width: 42px;
-  height: 42px;
+
+.header-logo-btn {
   background: white;
-  border-radius: 50%;
+  border: none;
+  border-radius: 14px;
+  padding: 9px 14px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--color-primary-deep);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.14);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  outline: none;
 }
-.header-text { flex: 1; min-width: 0; }
-.header-title { font-size: 18px; font-weight: 700; line-height: 1.2; }
-.header-sub { font-size: 12px; font-weight: 400; opacity: 0.92; margin-top: 3px; }
-.header-contact { font-size: 10.5px; opacity: 0.9; text-align: right; line-height: 1.45; flex-shrink: 0; }
-.header-contact-tel { font-weight: 700; font-size: 12px; display: block; }
+.header-logo-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+.header-logo-btn:active {
+  transform: scale(0.97);
+}
+.header-logo-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 3px 10px rgba(0, 0, 0, 0.14);
+}
+.header-logo-img {
+  height: 30px;
+  width: auto;
+  display: block;
+}
 
+.header-text {
+  flex: 1;
+  min-width: 0;
+  color: white;
+}
+.header-title {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+.header-sub {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.92);
+  margin-top: 3px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+}
+
+.header-reset-btn {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1.5px solid rgba(255, 255, 255, 0.32);
+  color: white;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 14px 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.header-reset-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+.header-reset-btn:active {
+  transform: scale(0.95);
+}
+.header-reset-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+  flex-shrink: 0;
+}
+
+/* ────────────────────────────────
+   대화 영역
+   ──────────────────────────────── */
 .chat {
   flex: 1;
   overflow-y: auto;
@@ -145,7 +220,9 @@ html, body {
   line-height: 1.5;
 }
 
-/* 카테고리화된 추천 질문 */
+/* ────────────────────────────────
+   카테고리화된 추천 질문
+   ──────────────────────────────── */
 .suggestions {
   margin-top: 4px;
   display: flex;
@@ -195,6 +272,9 @@ html, body {
 }
 .suggestion-btn:active { transform: scale(0.97); }
 
+/* ────────────────────────────────
+   입력 영역 + 하단
+   ──────────────────────────────── */
 .input-area {
   border-top: 1px solid var(--color-border);
   padding: 12px 16px;
@@ -275,11 +355,24 @@ html, body {
   40% { transform: scale(1); opacity: 1; }
 }
 
+/* ────────────────────────────────
+   반응형
+   ──────────────────────────────── */
 @media (max-width: 480px) {
-  .header { padding: 12px 14px; gap: 10px; }
+  .header { padding: 10px 12px; gap: 8px; }
+  .header-logo-btn { padding: 7px 10px; border-radius: 10px; }
+  .header-logo-img { height: 24px; }
   .header-title { font-size: 16px; }
-  .header-sub { font-size: 11px; }
-  .header-logo { width: 38px; height: 38px; font-size: 18px; }
+  .header-sub { font-size: 10.5px; }
+  .header-reset-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    padding: 0;
+    justify-content: center;
+  }
+  .header-reset-btn .reset-label { display: none; }
+  .header-reset-btn svg { width: 16px; height: 16px; }
   .bubble { font-size: 14px; max-width: 92%; }
   .suggestion-btn { font-size: 12px; padding: 8px 11px; }
   .chat { padding: 16px 12px 10px; }
@@ -287,7 +380,10 @@ html, body {
 
 @media (min-width: 768px) {
   .app { box-shadow: var(--shadow-lift); }
-  .header { padding: 20px 24px; }
+  .header { padding: 16px 22px; gap: 14px; }
+  .header-logo-img { height: 34px; }
+  .header-title { font-size: 20px; }
+  .header-sub { font-size: 12.5px; }
   .chat { padding: 24px 20px 16px; }
 }
 </style>
@@ -296,15 +392,21 @@ html, body {
 
 <div class="app">
   <header class="header">
-    <div class="header-logo" aria-hidden="true">모</div>
+    <button class="header-logo-btn" id="logoBtn" type="button" aria-label="처음 화면으로 돌아가기">
+      <img src="logo.png" alt="모두의 아이디어" class="header-logo-img" width="600" height="141">
+    </button>
     <div class="header-text">
       <div class="header-title">모아봇</div>
-      <div class="header-sub">「모두의 아이디어」 고도화 프로그램 안내</div>
+      <div class="header-sub">아이디어 고도화 프로그램 안내</div>
     </div>
-    <div class="header-contact">
-      프로그램 담당<br>
-      <span class="header-contact-tel">02-6338-1726</span>
-    </div>
+    <button class="header-reset-btn" id="resetBtn" type="button" aria-label="새 대화 시작">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+      <span class="reset-label">새 대화</span>
+    </button>
   </header>
 
   <main class="chat" id="chat" role="log" aria-live="polite"></main>
@@ -346,6 +448,8 @@ const chat = document.getElementById('chat');
 const form = document.getElementById('form');
 const input = document.getElementById('input');
 const sendBtn = document.getElementById('send');
+const logoBtn = document.getElementById('logoBtn');
+const resetBtn = document.getElementById('resetBtn');
 
 let conversationHistory = [];
 let presetData = null;
@@ -354,17 +458,13 @@ function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-// 간단한 마크다운 → HTML 변환 (헤딩/굵게/표/리스트/줄바꿈)
 function mdToHtml(text) {
   let html = escapeHtml(text);
-
-  // 표
   const lines = html.split('\n');
   const out = [];
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
-    // 표 헤더 + 구분선 패턴
     if (line.trim().startsWith('|') && i + 1 < lines.length && /^\|[\s\|:\-]+\|$/.test(lines[i+1].trim())) {
       const headerCells = line.trim().slice(1, -1).split('|').map(c => c.trim());
       let table = '<table><thead><tr>' + headerCells.map(c => `<th>${c}</th>`).join('') + '</tr></thead><tbody>';
@@ -382,10 +482,7 @@ function mdToHtml(text) {
     i++;
   }
   html = out.join('\n');
-
-  // **bold**
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  // 줄바꿈
   html = html.replace(/\n/g, '<br>');
   return html;
 }
@@ -393,8 +490,6 @@ function mdToHtml(text) {
 function renderMessage(text, role) {
   const div = document.createElement('div');
   div.className = `bubble ${role}`;
-
-  // 출처 분리
   const sourceMatch = text.match(/📖\s*출처[\s\S]*$/);
   let body = text;
   let source = '';
@@ -402,7 +497,6 @@ function renderMessage(text, role) {
     body = text.substring(0, sourceMatch.index).trim();
     source = sourceMatch[0];
   }
-
   div.innerHTML = mdToHtml(body);
   if (source) {
     const sourceDiv = document.createElement('div');
@@ -410,7 +504,6 @@ function renderMessage(text, role) {
     sourceDiv.innerHTML = mdToHtml(source);
     div.appendChild(sourceDiv);
   }
-
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
   return div;
@@ -420,20 +513,14 @@ function renderSuggestions() {
   const wrap = document.createElement('div');
   wrap.className = 'suggestions';
   wrap.id = 'suggestions';
-
-  if (!presetData || !presetData.categories) {
-    return wrap;
-  }
-
+  if (!presetData || !presetData.categories) return wrap;
   presetData.categories.forEach(cat => {
     const catDiv = document.createElement('div');
     catDiv.className = 'suggest-category';
-
     const label = document.createElement('div');
     label.className = 'suggest-category-label';
     label.innerHTML = `<span class="suggest-category-icon">${escapeHtml(cat.icon || '·')}</span> ${escapeHtml(cat.label)}`;
     catDiv.appendChild(label);
-
     const btns = document.createElement('div');
     btns.className = 'suggest-category-buttons';
     cat.questions.forEach(q => {
@@ -448,10 +535,8 @@ function renderSuggestions() {
       btns.appendChild(btn);
     });
     catDiv.appendChild(btns);
-
     wrap.appendChild(catDiv);
   });
-
   chat.appendChild(wrap);
   chat.scrollTop = chat.scrollHeight;
   return wrap;
@@ -492,12 +577,9 @@ async function sendMessage(message) {
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: JSON.stringify({ messages: conversationHistory }),
     });
-
     if (!res.ok) throw new Error('API 응답 오류: ' + res.status);
-
     const data = await res.json();
     removeTyping();
-
     renderMessage(data.reply, 'bot');
     conversationHistory.push({ role: 'assistant', content: data.reply });
   } catch (err) {
@@ -515,6 +597,19 @@ async function sendMessage(message) {
   }
 }
 
+function resetChat() {
+  // 진행 중인 요청이 있어도 UI는 초기화
+  conversationHistory = [];
+  chat.innerHTML = '';
+  renderMessage(WELCOME_MESSAGE, 'bot');
+  renderSuggestions();
+  input.value = '';
+  sendBtn.disabled = false;
+  input.disabled = false;
+  // 모바일에서 키보드 자동 활성화 방지 (스크롤 위로 유지)
+  if (window.innerWidth > 768) input.focus();
+}
+
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   const message = input.value.trim();
@@ -522,7 +617,9 @@ form.addEventListener('submit', (e) => {
   sendMessage(message);
 });
 
-// 초기 로드: 환영 메시지 → preset 로드 → 추천 질문 렌더
+logoBtn.addEventListener('click', resetChat);
+resetBtn.addEventListener('click', resetChat);
+
 (async function init() {
   renderMessage(WELCOME_MESSAGE, 'bot');
   try {
