@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#5E3F87">
 <title>모아봇 | 「모두의 아이디어」 아이디어 고도화 프로그램 안내</title>
 <meta name="description" content="「모두의 아이디어」 아이디어 고도화 프로그램(기술 분야) 안내 챗봇입니다.">
 
-<link rel="preload" as="image" href="logo.png">
+<link rel="preload" as="image" href="logo-white.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
 <style>
@@ -294,7 +294,7 @@ button {
   border: 2px solid var(--color-border);
   border-radius: 24px;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 16px;
   outline: none;
   transition: border-color 0.15s;
   background: white;
@@ -458,7 +458,7 @@ const WELCOME_MESSAGE = `안녕하십니까, 제안자님.
 
 **💡 활용 안내**
 · 담당자에게 연락 전, **본 챗봇과 가이드북을 먼저 활용**해주십시오.
-· 모든 답변 하단의 📖 출처는 가이드북의 해당 장·절 위치를 의미합니다 (추후 공개되는 HTML 가이드북에서 직접 확인 가능).
+· 답변 하단의 출처 표시는 가이드북의 해당 장·절 위치를 의미합니다 (상단 **가이드북** 버튼에서 직접 확인 가능).
 · 챗봇·가이드북으로 부족하거나 이해가 어려운 경우, 프로그램 담당자(02-6338-1726 · rnbdp@rnbdp.com)에게 연락해주십시오.`;
 
 const chat = document.getElementById('chat');
@@ -470,49 +470,66 @@ const resetBtn = document.getElementById('resetBtn');
 
 let conversationHistory = [];
 let presetData = null;
+let chatGen = 0;   // 대화 세대 (새 대화 시 +1 → 진행 중 요청 무효화)
 
 function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 function mdToHtml(text) {
-  let html = escapeHtml(text);
-  const lines = html.split('\n');
+  const boldify = (t) => t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // 끝/앞 파이프 누락에도 견고한 셀 파싱
+  const parseCells = (row) => row.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+
+  const lines = escapeHtml(text).split('\n');
   const out = [];
+  const tables = [];
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
-    if (line.trim().startsWith('|') && i + 1 < lines.length && /^\|[\s\|:\-]+\|$/.test(lines[i+1].trim())) {
-      const headerCells = line.trim().slice(1, -1).split('|').map(c => c.trim());
-      let table = '<table><thead><tr>' + headerCells.map(c => `<th>${c}</th>`).join('') + '</tr></thead><tbody>';
+    const next = i + 1 < lines.length ? lines[i + 1].trim() : '';
+    const isTable = line.trim().startsWith('|') && /^\|?[\s|:\-]+\|?$/.test(next) && next.indexOf('-') > -1;
+    if (isTable) {
+      const header = parseCells(line);
+      let tbl = '<table><thead><tr>' + header.map(c => `<th>${boldify(c)}</th>`).join('') + '</tr></thead><tbody>';
       i += 2;
       while (i < lines.length && lines[i].trim().startsWith('|')) {
-        const cells = lines[i].trim().slice(1, -1).split('|').map(c => c.trim());
-        table += '<tr>' + cells.map(c => `<td>${c}</td>`).join('') + '</tr>';
+        const cells = parseCells(lines[i]);
+        tbl += '<tr>' + cells.map(c => `<td>${boldify(c)}</td>`).join('') + '</tr>';
         i++;
       }
-      table += '</tbody></table>';
-      out.push(table);
+      tbl += '</tbody></table>';
+      out.push('@@MOABOT_TABLE_' + tables.length + '@@');
+      tables.push(tbl);
       continue;
     }
     out.push(line);
     i++;
   }
-  html = out.join('\n');
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  let html = boldify(out.join('\n'));
   html = html.replace(/\n/g, '<br>');
+  // 표 토큰 복원 + 표 인접 <br> 정리 (표 위아래 과도한 여백 방지)
+  tables.forEach((tbl, idx) => {
+    const re = new RegExp('(?:<br>\s*)*@@MOABOT_TABLE_' + idx + '@@(?:\s*<br>)*', 'g');
+    html = html.replace(re, tbl);
+  });
   return html;
 }
 
-function renderMessage(text, role) {
+function renderMessage(text, role, parseSource) {
   const div = document.createElement('div');
   div.className = `bubble ${role}`;
-  const sourceMatch = text.match(/📖\s*출처[\s\S]*$/);
   let body = text;
   let source = '';
-  if (sourceMatch) {
-    body = text.substring(0, sourceMatch.index).trim();
-    source = sourceMatch[0];
+  // 출처 분리는 실제 답변(parseSource=true)에만 적용.
+  // "줄 시작"의 "📖 출처:"(콜론) 형식만 인식 → 본문 중간 문구·표 안의 텍스트는 잘리지 않음
+  if (parseSource) {
+    const sourceMatch = text.match(/(?:^|\n)[ \t]*📖\s*출처\s*:[\s\S]*$/);
+    if (sourceMatch) {
+      body = text.substring(0, sourceMatch.index).trim();
+      source = sourceMatch[0].replace(/^[\s]+/, '');
+    }
   }
   div.innerHTML = mdToHtml(body);
   if (source) {
@@ -579,6 +596,7 @@ function removeSuggestions() {
 }
 
 async function sendMessage(message) {
+  const myGen = chatGen;   // 이 요청의 세대 — 새 대화 시 무효화 판별용
   sendBtn.disabled = true;
   input.disabled = true;
 
@@ -596,26 +614,31 @@ async function sendMessage(message) {
     });
     if (!res.ok) throw new Error('API 응답 오류: ' + res.status);
     const data = await res.json();
+    if (myGen !== chatGen) return;   // 응답 도착 전 '새 대화'가 눌렸으면 무시
     removeTyping();
-    renderMessage(data.reply, 'bot');
+    renderMessage(data.reply, 'bot', true);
     conversationHistory.push({ role: 'assistant', content: data.reply });
   } catch (err) {
     console.error(err);
+    if (myGen !== chatGen) return;
     removeTyping();
     renderMessage(
       '일시적으로 응답을 받지 못했습니다. 잠시 후 다시 시도해주십시오. 긴급한 사항은 프로그램 담당자(02-6338-1726, rnbdp@rnbdp.com)로 문의해주십시오.',
       'bot'
     );
   } finally {
-    sendBtn.disabled = false;
-    input.disabled = false;
-    input.value = '';
-    input.focus();
+    if (myGen === chatGen) {
+      sendBtn.disabled = false;
+      input.disabled = false;
+      input.value = '';
+      input.focus();
+    }
   }
 }
 
 function resetChat() {
-  // 진행 중인 요청이 있어도 UI는 초기화
+  // 진행 중인 요청 무효화 (늦게 도착한 응답이 빈 화면에 끼어드는 것 방지)
+  chatGen++;
   conversationHistory = [];
   chat.innerHTML = '';
   renderMessage(WELCOME_MESSAGE, 'bot');
