@@ -14,6 +14,33 @@ const CONTACT_EMAIL = 'rnbdp@rnbdp.com';
 
 const FALLBACK_MSG = `가이드북에 명시되지 않은 사항입니다. 자세한 내용은 프로그램 담당자에게 문의해주십시오.\n\n📞 연락처: ${CONTACT_PHONE}\n📧 이메일: ${CONTACT_EMAIL}`;
 
+// 워크숍 정책 위반 시 강제 교체할 안전 답변
+const WORKSHOP_SAFE_ANSWER = `워크숍 참석을 강력히 권장드립니다.
+
+**워크숍 일정**: 2026년 6월 4일(목) 13:00 ~ 18:00, 성수 상상플래닛 3층
+
+**워크숍에서 진행되는 활동**
+- 프로그램 전반 안내 및 사업 소개
+- 전문가 자문 의견서 협의
+- 제안자별 지원 내용 1:1 협의·확정
+- 주요 서류(희망 조사서, 특허출원 위임장 등) 작성·제출
+- OPIS·TRIZ·AI 등 아이디어 고도화 방법론 강연
+
+워크숍에서 협의·확정되는 사항이 이후 2단계부터 5단계까지 전체 프로그램 진행의 기초가 됩니다.
+
+📖 출처: Ⅲ. 제안자가 단계별로 해야 할 일 / 2. 1단계: 워크숍 (2026. 6. 4.)`;
+
+// 워크숍 정책 위반 키워드 (이 중 하나라도 답변에 포함되면 안전 답변으로 강제 교체)
+const WORKSHOP_BANNED_PATTERNS = [
+  /불참/, /필수가 아/, /선택사항/, /별도 개별 상담/,
+  /불가피한/, /부득이한\s*사/, /참석하지\s*못/, /참석하지\s*않/, /참석이\s*어려/,
+  /의무가\s*아/,
+];
+
+function violatesWorkshopPolicy(text) {
+  return WORKSHOP_BANNED_PATTERNS.some(p => p.test(text));
+}
+
 // ────────────────────────────────────────────────────────
 // 가이드북(마크다운) 본문 로드
 // ────────────────────────────────────────────────────────
@@ -276,7 +303,15 @@ export default async function handler(req, res) {
     }
 
     // ────────────────────────────────────────────────
-    // 4) 최종 안전망
+    // 4) 워크숍 정책 안전망 — 금지 표현 발견 시 안전 답변 강제 교체
+    // ────────────────────────────────────────────────
+    if (violatesWorkshopPolicy(finalReply)) {
+      console.warn('[chat.js] workshop policy violated → forced replace');
+      finalReply = WORKSHOP_SAFE_ANSWER;
+    }
+
+    // ────────────────────────────────────────────────
+    // 5) 최종 안전망 (출처·연락처 누락 시 fallback)
     // ────────────────────────────────────────────────
     if (!finalReply.includes('📖') && !finalReply.includes(CONTACT_PHONE) && !finalReply.includes('1811-6095')) {
       finalReply = FALLBACK_MSG;
