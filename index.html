@@ -71,32 +71,26 @@ button {
 }
 
 .header-logo-btn {
-  background: white;
+  background: none;
   border: none;
-  border-radius: 14px;
-  padding: 9px 14px;
+  padding: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.14);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.15s ease, opacity 0.15s ease;
   flex-shrink: 0;
   outline: none;
 }
-.header-logo-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-}
-.header-logo-btn:active {
-  transform: scale(0.97);
-}
+.header-logo-btn:hover { opacity: 0.9; }
+.header-logo-btn:active { transform: scale(0.97); }
 .header-logo-btn:focus-visible {
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 3px 10px rgba(0, 0, 0, 0.14);
+  outline: 2px solid rgba(255, 255, 255, 0.7); outline-offset: 3px; border-radius: 4px;
 }
 .header-logo-img {
   height: 30px;
   width: auto;
   display: block;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.22));
 }
 
 .header-text {
@@ -119,16 +113,22 @@ button {
   letter-spacing: -0.1px;
 }
 
-.header-reset-btn {
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.header-btn {
   background: rgba(255, 255, 255, 0.18);
-  border: 1.5px solid rgba(255, 255, 255, 0.32);
+  border: 1.5px solid rgba(255, 255, 255, 0.42);
   color: white;
   font-size: 12.5px;
   font-weight: 600;
-  padding: 8px 14px 8px 12px;
+  padding: 8px 13px;
   border-radius: 20px;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 5px;
   transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
@@ -136,15 +136,17 @@ button {
   -webkit-backdrop-filter: blur(10px);
   flex-shrink: 0;
   white-space: nowrap;
+  text-decoration: none;
 }
-.header-reset-btn:hover {
+.header-btn:hover {
   background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.65);
 }
-.header-reset-btn:active {
-  transform: scale(0.95);
+.header-btn:active { transform: scale(0.95); }
+.header-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7); outline-offset: 2px;
 }
-.header-reset-btn svg {
+.header-btn svg {
   width: 14px;
   height: 14px;
   stroke-width: 2.5;
@@ -360,19 +362,20 @@ button {
    ──────────────────────────────── */
 @media (max-width: 480px) {
   .header { padding: 10px 12px; gap: 8px; }
-  .header-logo-btn { padding: 7px 10px; border-radius: 10px; }
   .header-logo-img { height: 24px; }
   .header-title { font-size: 16px; }
   .header-sub { font-size: 10.5px; }
-  .header-reset-btn {
+  .header-actions { gap: 6px; }
+  .header-btn {
     width: 38px;
     height: 38px;
     border-radius: 50%;
     padding: 0;
+    gap: 0;
     justify-content: center;
   }
-  .header-reset-btn .reset-label { display: none; }
-  .header-reset-btn svg { width: 16px; height: 16px; }
+  .header-btn .btn-label { display: none; }
+  .header-btn svg { width: 16px; height: 16px; }
   .bubble { font-size: 14px; max-width: 92%; }
   .suggestion-btn { font-size: 12px; padding: 8px 11px; }
   .chat { padding: 16px 12px 10px; }
@@ -393,20 +396,29 @@ button {
 <div class="app">
   <header class="header">
     <button class="header-logo-btn" id="logoBtn" type="button" aria-label="처음 화면으로 돌아가기">
-      <img src="logo.png" alt="모두의 아이디어" class="header-logo-img" width="600" height="141">
+      <img src="logo-white.png" alt="모두의 아이디어" class="header-logo-img" width="600" height="141">
     </button>
     <div class="header-text">
       <div class="header-title">모아봇</div>
       <div class="header-sub">아이디어 고도화 프로그램 안내</div>
     </div>
-    <button class="header-reset-btn" id="resetBtn" type="button" aria-label="새 대화 시작">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <polyline points="23 4 23 10 17 10"></polyline>
-        <polyline points="1 20 1 14 7 14"></polyline>
-        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-      </svg>
-      <span class="reset-label">새 대화</span>
-    </button>
+    <div class="header-actions">
+      <a class="header-btn" id="guideBtn" href="https://moduidea-guidebook.vercel.app" aria-label="가이드북 보기">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        </svg>
+        <span class="btn-label">가이드북</span>
+      </a>
+      <button class="header-btn" id="resetBtn" type="button" aria-label="새 대화 시작">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        <span class="btn-label">새 대화</span>
+      </button>
+    </div>
   </header>
 
   <main class="chat" id="chat" role="log" aria-live="polite"></main>
