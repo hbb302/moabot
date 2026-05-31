@@ -439,7 +439,7 @@ button {
 
   <div class="disclaimer">
     문의 전 챗봇과 가이드북을 먼저 활용해주십시오. 부족할 경우 프로그램 담당자에게 연락해주십시오.
-    <div class="disclaimer-contact">📞 02-6338-1726 · 📧 rnbdp@rnbdp.com</div>
+    <div class="disclaimer-contact">📞 02-6338-1726 · 📧 rnbdpartners@gmail.com</div>
   </div>
 </div>
 
@@ -459,7 +459,7 @@ const WELCOME_MESSAGE = `안녕하십니까, 제안자님.
 **💡 활용 안내**
 · 담당자에게 연락 전, **본 챗봇과 가이드북을 먼저 활용**해주십시오.
 · 답변 하단의 출처 표시는 가이드북의 해당 장·절 위치를 의미합니다 (상단 **가이드북** 버튼에서 직접 확인 가능).
-· 챗봇·가이드북으로 부족하거나 이해가 어려운 경우, 프로그램 담당자(02-6338-1726 · rnbdp@rnbdp.com)에게 연락해주십시오.`;
+· 챗봇·가이드북으로 부족하거나 이해가 어려운 경우, 프로그램 담당자(02-6338-1726 · rnbdpartners@gmail.com)에게 연락해주십시오.`;
 
 const chat = document.getElementById('chat');
 const form = document.getElementById('form');
@@ -623,7 +623,7 @@ async function sendMessage(message) {
     if (myGen !== chatGen) return;
     removeTyping();
     renderMessage(
-      '일시적으로 응답을 받지 못했습니다. 잠시 후 다시 시도해주십시오. 긴급한 사항은 프로그램 담당자(02-6338-1726, rnbdp@rnbdp.com)로 문의해주십시오.',
+      '일시적으로 응답을 받지 못했습니다. 잠시 후 다시 시도해주십시오. 긴급한 사항은 프로그램 담당자(02-6338-1726, rnbdpartners@gmail.com)로 문의해주십시오.',
       'bot'
     );
   } finally {

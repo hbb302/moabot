@@ -10,7 +10,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 // 담당자 연락처 (가이드북 외 질의 시 안내)
 const CONTACT_PHONE = '02-6338-1726';
-const CONTACT_EMAIL = 'rnbdp@rnbdp.com';
+const CONTACT_EMAIL = 'rnbdpartners@gmail.com';
 
 const FALLBACK_MSG = `가이드북에 명시되지 않은 사항입니다. 자세한 내용은 프로그램 담당자에게 문의해주십시오.\n\n📞 연락처: ${CONTACT_PHONE}\n📧 이메일: ${CONTACT_EMAIL}`;
 
