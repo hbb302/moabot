@@ -3,7 +3,7 @@
 > 2026년 「모두의 아이디어」 1차 심사 통과 제안자(기술 분야 40명) 대상 안내 챗봇.
 > 가이드북 버전: 260528
 
-**서비스 URL**: https://moabot.vercel.app
+**서비스 URL**: https://moabot-tech.vercel.app
 **저장소**: https://github.com/hbb302/moabot
 
 ---
